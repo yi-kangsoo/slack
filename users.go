@@ -564,6 +564,45 @@ func (api *Client) SetUserRealNameContextWithUser(ctx context.Context, user, rea
 	return response.Err()
 }
 
+// SetUserDisplayName changes the currently authenticated user's displayName
+//
+// For more information see SetUserDisplayNameContextWithUser
+func (api *Client) SetUserDisplayName(displayName string) error {
+	return api.SetUserDisplayNameContextWithUser(context.Background(), "", displayName)
+}
+
+// SetUserDisplayNameContextWithUser will set a real name for the provided user with a custom context
+func (api *Client) SetUserDisplayNameContextWithUser(ctx context.Context, user, displayName string) error {
+	profile, err := json.Marshal(
+		&struct {
+			DisplayName string `json:"display_name"`
+		}{
+			DisplayName: displayName,
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	values := url.Values{
+		"token":   {api.token},
+		"profile": {string(profile)},
+	}
+
+	// optional field. It should not be set if empty
+	if user != "" {
+		values["user"] = []string{user}
+	}
+
+	response := &userResponseFull{}
+	if err = api.postMethod(ctx, "users.profile.set", values, response); err != nil {
+		return err
+	}
+
+	return response.Err()
+}
+
 // SetUserCustomStatus will set a custom status and emoji for the currently
 // authenticated user. If statusEmoji is "" and statusText is not, the Slack API
 // will automatically set it to ":speech_balloon:". Otherwise, if both are ""

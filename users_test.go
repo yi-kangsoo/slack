@@ -344,6 +344,19 @@ func testSetUserRealName(api *Client, up *UserProfile, t *testing.T) {
 	}
 }
 
+func testSetUserDisplayName(api *Client, up *UserProfile, t *testing.T) {
+	const (
+		realName = "Display Name Test"
+	)
+	if err := api.SetUserDisplayName(realName); err != nil {
+		t.Fatalf(`SetUserDisplayName(%q) = %#v, want <nil>`, realName, err)
+	}
+
+	if up.DisplayName != realName {
+		t.Fatalf(`UserProfile.DisplayName = %q, want %q`, up.DisplayName, realName)
+	}
+}
+
 func testSetUserCustomStatus(api *Client, up *UserProfile, t *testing.T) {
 	const (
 		statusText       = "testStatus"
